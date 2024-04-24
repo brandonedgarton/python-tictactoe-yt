@@ -25,12 +25,13 @@ BG_COLOR = (28, 170, 156)
 LINE_COLOR = (23, 145, 135)
 CIRCLE_COLOR = (239, 231, 200)
 CROSS_COLOR = (66, 66, 66)
+FONT_COLOR = (255, 0, 0)
 
 # ------
 # SCREEN
 # ------
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
-pygame.display.set_caption( 'TIC TAC TOE' )
+pygame.display.set_caption( 'TIC TAC TOE (Press y to play again or n to quit!)' )
 screen.fill( BG_COLOR )
 
 # -------------
@@ -142,6 +143,37 @@ def restart():
 	for row in range(BOARD_ROWS):
 		for col in range(BOARD_COLS):
 			board[row][col] = 0
+	return False
+
+# Pygame font initialization (if not already included)
+pygame.font.init()
+
+def ask_play_again():
+    # Ensures screen is clear before displaying the message
+    screen.fill(BG_COLOR)
+    draw_lines()
+
+    # Using a common system font if specific one fails
+    font = pygame.font.SysFont('comicsans', 32)  # 'None' can be replaced with 'comicsans' for a commonly available font
+
+    text = font.render('Play again? (Y/N)', True, FONT_COLOR)
+    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.update()
+
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_y:
+                    restart()
+                    return True  # Continue playing
+                elif event.key == pygame.K_n:
+                    pygame.quit()
+                    sys.exit()  # Exit the game
 
 draw_lines()
 
@@ -157,6 +189,7 @@ game_over = False
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
+			pygame.quit()
 			sys.exit()
 
 		if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
@@ -177,10 +210,12 @@ while True:
 				draw_figures()
 
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_r:
-				restart()
-				player = 1
-				game_over = False
+			if event.key == pygame.K_y:
+				game_over = restart()
+				#player = 1
+			elif event.key == pygame.K_n:
+				pygame.quit()
+				sys.exit()
 
 	pygame.display.update()
 
